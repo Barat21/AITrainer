@@ -1,82 +1,96 @@
-import React from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
+import React, { useState } from "react";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import { useRouter } from "expo-router";
-import { FontAwesome } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
-import { StatusBar } from "react-native";
-
+import { auth, signInWithEmailAndPassword } from "../firebaseConfig";
+import { Auth, createUserWithEmailAndPassword } from "firebase/auth";
+import LottieView from "lottie-react-native";
 
 export default function SignupScreen() {
   const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleSignup = async () => {
+    if (!email || !password) {
+      Alert.alert("Error", "Please enter both email and password");
+      return;
+    }
+
+    try {
+      await createUserWithEmailAndPassword(auth, email, password);
+      Alert.alert(
+        "Signup Successful",
+        "Please login with your email and password",
+        [{ text: "OK", onPress: () => router.push("/") }] // Navigate after user acknowledges
+      );
+        } catch (error) {
+      if (error instanceof Error) {
+        Alert.alert("Error", error.message);
+      }else{
+        Alert.alert("Error", "Something Went Wrong");
+      }
+    }
+  };
 
   return (
-    <LinearGradient colors={["#141E30", "#243B55"]} style={styles.gradient}>
-      {/* ✅ Fix: Expo Status Bar */}
-      <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
+    <View style={styles.container}>
+      <Text style={styles.title}>Create an Account</Text>
 
-      <View style={styles.container}>
-        <Text style={styles.title}>Create an Account</Text>
+      <LottieView
+        source={{ uri: "https://lottie.host/665be306-a27c-4b5b-b99c-445884097c28/zQrkRQ3mRy.lottie" }}
+        autoPlay
+        loop
+        style={styles.lottieAnimation}
+      />
+      
+      <TextInput 
+        style={styles.input} 
+        placeholder="Email" 
+        placeholderTextColor="#ccc" 
+        value={email} 
+        onChangeText={setEmail} 
+        keyboardType="email-address"
+      />
+      <TextInput 
+        style={styles.input} 
+        placeholder="Password" 
+        placeholderTextColor="#ccc" 
+        value={password} 
+        onChangeText={setPassword} 
+        secureTextEntry
+      />
 
-        <TextInput 
-          style={styles.input} 
-          placeholder="Full Name" 
-          placeholderTextColor="#ccc" 
-        />
-        <TextInput 
-          style={styles.input} 
-          placeholder="Email" 
-          placeholderTextColor="#ccc" 
-          keyboardType="email-address" 
-        />
-        <TextInput 
-          style={styles.input} 
-          placeholder="Password" 
-          placeholderTextColor="#ccc" 
-          secureTextEntry 
-        />
+      <TouchableOpacity style={styles.button} onPress={handleSignup}>
+        <Text style={styles.buttonText}>Sign Up</Text>
+      </TouchableOpacity>
 
-        <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText}>Sign Up</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.ssoButton}>
-          <FontAwesome name="google" size={20} color="#fff" />
-          <Text style={styles.ssoText}>Sign Up with Google</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity onPress={() => router.push("/")} style={styles.link}>
-          <Text style={styles.linkText}>Already have an account? Log in</Text>
-        </TouchableOpacity>
-      </View>
-    </LinearGradient>
+      <TouchableOpacity onPress={() => router.push("/")} style={styles.link}>
+        <Text style={styles.linkText}>Already have an account? Log in</Text>
+      </TouchableOpacity>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  gradient: {
-    flex: 1,
-  },
-  container: { 
+  container: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: "#141E30",
   },
   title: {
     fontSize: 24,
     fontWeight: "bold",
     color: "#fff",
-    marginBottom: 20,
   },
   input: {
     width: "80%",
     height: 50,
-    backgroundColor: "rgba(255, 255, 255, 0.1)", 
+    backgroundColor: "#243B55",
     borderRadius: 10,
     paddingHorizontal: 15,
     color: "#fff",
     marginBottom: 15,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.3)", 
   },
   button: {
     width: "80%",
@@ -99,19 +113,10 @@ const styles = StyleSheet.create({
     color: "#4A90E2",
     fontSize: 16,
   },
-  ssoButton: {
-    width: "80%",
-    height: 50,
-    backgroundColor: "#4285F4",
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    borderRadius: 10,
-    marginTop: 10,
-  },
-  ssoText: {
-    color: "#fff",
-    fontSize: 16,
-    marginLeft: 10,
+  lottieAnimation: {
+    width: 150, // Adjust size as needed
+    height: 150,
+    marginBottom: 20,
   },
 });
+

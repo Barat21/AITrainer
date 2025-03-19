@@ -1,31 +1,73 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet, Image } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { FontAwesome } from "@expo/vector-icons";
+import LottieView from "lottie-react-native";
+import { sendPasswordResetEmail, signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../firebaseConfig"; // Import Firebase Auth
+
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
 
-  const handleLogin = () => {
-    if (email === "a" && password === "a") {
-      router.push("/Homescreen"); // Navigate to home screen
-    } else {
-      Alert.alert("Login Failed", "Invalid email or password");
-    }
-  };
+const handleLogin = async () => {
+  if (!email || !password) {
+    Alert.alert("Login Failed", "Please enter email and password.");
+    return;
+  }
+
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+    Alert.alert("Success", "Login successful!");
+    router.push("/Homescreen"); // Navigate to home screen
+  } catch (error) {
+    if (error instanceof Error) {
+      Alert.alert("Error", error.message);
+    }else{
+      Alert.alert("Error", "Login Failed");
+    }  
+  }
+};
+
 
   const handleSSOLogin = () => {
     Alert.alert("SSO Login", "Redirecting to Single Sign-On...");
   };
 
+  const handleForgotPassword = () => {
+    if (!email) {
+      Alert.alert("Forgot Password", "Please enter your email first.");
+      return;
+    }
+  
+    sendPasswordResetEmail(auth, email)
+      .then(() => {
+        Alert.alert("Password Reset", "Check your email for reset instructions.");
+      })
+      .catch((error) => {
+        if (error instanceof Error) {
+          Alert.alert("Error", error.message);
+        }else{
+          Alert.alert("Error", "Unable to send password verification link at the moment.");
+        }      
+      });
+  };
+  
+
   return (
     <LinearGradient colors={["#141E30", "#243B55"]} style={styles.container}>
-      <Image source={{ uri: "https://cdn-icons-png.flaticon.com/512/847/847969.png" }} style={styles.avatar} />
-
+      {/* Replace Image with Lottie Animation */}
       <Text style={styles.title}>Welcome Back</Text>
+
+      <LottieView
+        source={{ uri: "https://lottie.host/6ace859b-2acf-4cae-8424-b47b43676a4c/lfw37bxu1N.lottie" }}
+        autoPlay
+        loop
+        style={styles.lottieAnimation}
+      />
 
       <TextInput
         style={styles.input}
@@ -53,14 +95,13 @@ export default function LoginScreen() {
         <Text style={styles.ssoText}>Login with Google</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => Alert.alert("Reset Password", "Redirecting to forgot password...")}>
+      <TouchableOpacity onPress={handleForgotPassword}>
         <Text style={styles.forgotPassword}>Forgot Password?</Text>
       </TouchableOpacity>
 
       <TouchableOpacity onPress={() => router.push("/signup")} style={styles.signupButton}>
         <Text style={styles.signupText}>Don't have an account? Sign Up</Text>
       </TouchableOpacity>
-
     </LinearGradient>
   );
 }
@@ -72,17 +113,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 20,
   },
-  avatar: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
+  lottieAnimation: {
+    width: 150, // Adjust size as needed
+    height: 150,
     marginBottom: 20,
   },
   title: {
     fontSize: 26,
     fontWeight: "bold",
     color: "#fff",
-    marginBottom: 20,
   },
   input: {
     width: "100%",

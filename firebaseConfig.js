@@ -3,12 +3,11 @@ import { initializeApp } from "firebase/app";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
 
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
+  apiKey: "AIzaSyCnn6bGg_Zv44pS0_eeUCUNWi6006ZllaI",
   authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  projectId: "aitrainer-a17cb",
+  storageBucket: "aitrainer-a17cb.firebasestorage.app",
+  appId: "1:914296213251:android:043368ce02b3c047a2e336"
 };
 
 // Initialize Firebase
